@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Lab — Лабораторні 1 та 2</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+
+        <div class="top-bar">
+            <button id="theme-toggle" onclick="toggleTheme()" class="btn-theme">
+                🌙 Темна тема
+            </button>
+        </div>
+
+        <!-- Екран авторизації -->
+        <div id="login-screen" class="screen login-wrapper">
+            <div class="login-card">
+                <h1>Автентифікація</h1>
+                <p class="subtitle">Введіть облікові дані для доступу</p>
+
+                <div class="form-group">
+                    <label for="login-username">Логін:</label>
+                    <input
+                        type="text"
+                        id="login-username"
+                        placeholder="Введіть прізвище"
+                        autocomplete="username"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">Пароль:</label>
+                    <input
+                        type="password"
+                        id="login-password"
+                        placeholder="Введіть ім'я"
+                        autocomplete="current-password"
+                    >
+                </div>
+
+                <button
+                    id="login-button"
+                    onclick="performLogin()"
+                    style="width: 100%; margin-top: 10px;"
+                >
+                    Увійти в систему
+                </button>
+
+                <p
+                    id="login-error"
+                    class="hidden"
+                    style="color: var(--danger); margin-top: 15px; font-weight: bold;"
+                    role="alert"
+                ></p>
+
+                <p
+                    id="login-success"
+                    class="hidden"
+                    style="color: #22c55e; margin-top: 15px; font-weight: bold;"
+                    role="status"
+                ></p>
+            </div>
+        </div>
+
+        <!-- Головний екран -->
+        <div id="home-screen" class="screen hidden">
+            <h1>Лабораторні роботи 1 та 2</h1>
+            <p class="subtitle">
+                Криптографічний інструментарій + JWT-автентифікація
+            </p>
+
+            <p id="current-user" class="subtitle"></p>
+
+            <div class="main-menu">
+                <button class="menu-btn" onclick="openCipher('caesar')">
+                    <span class="btn-icon">🏛️</span>
+                    Шифр Цезаря
+                    <small>Шифрування, дешифрування та аналіз</small>
+                </button>
+
+                <button class="menu-btn" onclick="openCipher('transposition')">
+                    <span class="btn-icon">🔀</span>
+                    Шифр перестановки
+                    <small>Стовпцева перестановка та матриця</small>
+                </button>
+
+                <button
+                    class="menu-btn"
+                    onclick="testProtectedAPI()"
+                    style="grid-column: 1 / -1;"
+                >
+                    <span class="btn-icon">🛡️</span>
+                    Перевірити JWT-токен
+                    <small>Перевірка доступу до захищених маршрутів</small>
+                </button>
+            </div>
+
+            <button
+                onclick="logout()"
+                class="btn-secondary"
+                style="margin-top: 20px;"
+            >
+                Вийти із системи
+            </button>
+        </div>
+
+        <!-- Екран роботи з шифрами -->
+        <div id="workspace-screen" class="screen hidden">
+            <div class="header-nav">
+                <button onclick="goHome()" class="btn-secondary back-btn">
+                    ⬅ На головну
+                </button>
+                <h1 id="workspace-title">Назва шифру</h1>
+            </div>
+
+            <section class="tools-section">
+                <div class="file-controls">
+                    <label class="custom-file-upload">
+                        <input type="file" id="file-input" accept=".txt">
+                        📁 Відкрити файл (.txt)
+                    </label>
+
+                    <button onclick="downloadResult()" class="btn-secondary">
+                        💾 Зберегти
+                    </button>
+
+                    <button onclick="copyResult()" class="btn-secondary">
+                        📋 Скопіювати
+                    </button>
+                </div>
+
+                <textarea
+                    id="main-text"
+                    rows="4"
+                    placeholder="Введіть текст..."
+                ></textarea>
+
+                <div class="hash-display">
+                    <small>
+                        🛡️ Хеш цілісності (SHA-256):
+                        <br>
+                        <span id="text-hash">Відсутній</span>
+                    </small>
+                </div>
+            </section>
+
+            <!-- Шифр Цезаря -->
+            <section id="caesar-controls" class="cipher-section hidden">
+                <div class="controls-row">
+                    <div class="form-group">
+                        <label for="caesar-lang">Алфавіт:</label>
+                        <select id="caesar-lang">
+                            <option value="uk">Український (33 літери)</option>
+                            <option value="en">Англійський (26 літер)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="caesar-key">Ключ зсуву (K):</label>
+                        <input
+                            type="number"
+                            id="caesar-key"
+                            value="3"
+                            min="1"
+                            max="33"
+                        >
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button onclick="processCaesar('encrypt')">
+                        🔒 Зашифрувати
+                    </button>
+
+                    <button onclick="processCaesar('decrypt')">
+                        🔓 Дешифрувати
+                    </button>
+
+                    <button onclick="bruteForceCaesar()" class="btn-danger">
+                        💣 Brute-force
+                    </button>
+
+                    <button onclick="analyzeFrequency()" class="btn-warning">
+                        📊 Частотний аналіз
+                    </button>
+                </div>
+
+                <div id="brute-force-output" class="hidden analysis-box"></div>
+
+                <div id="frequency-output" class="hidden analysis-box">
+                    <h3>Результати частотного аналізу</h3>
+                    <p id="freq-suggestion" class="highlight-text"></p>
+                    <div id="freq-chart" class="chart-container"></div>
+                </div>
+            </section>
+
+            <!-- Шифр перестановки -->
+            <section id="trans-controls" class="cipher-section hidden">
+                <div class="form-group">
+                    <label for="trans-key">Ключове слово:</label>
+                    <input
+                        type="text"
+                        id="trans-key"
+                        placeholder="Шифр"
+                    >
+                </div>
+
+                <div class="buttons">
+                    <button onclick="processTransposition('encrypt')">
+                        🔒 Зашифрувати
+                    </button>
+
+                    <button onclick="processTransposition('decrypt')">
+                        🔓 Дешифрувати
+                    </button>
+
+                    <button
+                        id="toggle-matrix-btn"
+                        onclick="toggleMatrix()"
+                        class="btn-secondary hidden"
+                    >
+                        👁️ Показати матрицю
+                    </button>
+                </div>
+
+                <div id="matrix-output" class="hidden analysis-box"></div>
+            </section>
+        </div>
+    </div>
+
+    <script src="/script.js"></script>
+</body>
+</html>
