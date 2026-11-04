@@ -72,8 +72,6 @@
                 Криптографічний інструментарій + JWT + S-DES
             </p>
 
-            <p id="current-user" class="subtitle"></p>
-
             <div class="main-menu">
                 <button class="menu-btn" onclick="openCipher('caesar')">
                     <span class="btn-icon">🏛️</span>
@@ -87,7 +85,6 @@
                     <small>Стовпцева перестановка та матриця</small>
                 </button>
 
-                <!-- Нова кнопка для Лабораторної №3 -->
                 <button class="menu-btn" onclick="openCipher('sdes')">
                     <span class="btn-icon">🔐</span>
                     Шифр S-DES
@@ -103,6 +100,19 @@
                     Перевірити JWT-токен
                     <small>Перевірка доступу до захищених маршрутів</small>
                 </button>
+            </div>
+
+            <!-- Панель сесії користувача (тепер знаходиться ЗНИЗУ під кнопкою) -->
+            <div id="session-dashboard" class="session-dashboard hidden" style="margin-top: 30px;">
+                <div class="session-header">
+                    <span class="status-indicator"></span>
+                    <h3 id="current-user"></h3>
+                </div>
+                <div class="token-box">
+                    <span class="token-label">JWT:</span>
+                    <code id="jwt-display"></code>
+                    <button onclick="copyToken()" class="btn-copy" title="Скопіювати токен">📋</button>
+                </div>
             </div>
 
             <button

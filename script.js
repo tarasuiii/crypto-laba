@@ -23,7 +23,6 @@ function openCipher(cipherType) {
     document.getElementById('home-screen').classList.add('hidden');
     document.getElementById('workspace-screen').classList.remove('hidden');
 
-    // Знаходимо цей верхній блок з файлами і текстом
     const toolsSection = document.querySelector('.tools-section');
 
     document.getElementById('caesar-controls').classList.add('hidden');
@@ -33,15 +32,15 @@ function openCipher(cipherType) {
     if (cipherType === 'caesar') {
         document.getElementById('workspace-title').innerText = 'Шифр Цезаря';
         document.getElementById('caesar-controls').classList.remove('hidden');
-        toolsSection.classList.remove('hidden'); // Показуємо
+        toolsSection.classList.remove('hidden');
     } else if (cipherType === 'transposition') {
         document.getElementById('workspace-title').innerText = 'Шифр перестановки';
         document.getElementById('trans-controls').classList.remove('hidden');
-        toolsSection.classList.remove('hidden'); // Показуємо
+        toolsSection.classList.remove('hidden');
     } else if (cipherType === 'sdes') {
         document.getElementById('workspace-title').innerText = 'Шифр S-DES';
         document.getElementById('sdes-controls').classList.remove('hidden');
-        toolsSection.classList.add('hidden'); // ХОВАЄМО для S-DES
+        toolsSection.classList.add('hidden');
     }
 
     updateHash();
@@ -64,7 +63,6 @@ function goHome() {
     document.getElementById('main-text').value = '';
     document.getElementById('file-input').value = '';
     
-    // Очищення результатів S-DES
     document.getElementById('sdes-res-bin').innerText = '-';
     document.getElementById('sdes-res-dec').innerText = '-';
 
@@ -505,7 +503,6 @@ function decryptSDES() {
         return;
     }
 
-    // --- ФІШКА: Красивий кольоровий вивід у консоль ---
     const logStyleHead = "color: #00ff00; font-weight: bold; background: #111; padding: 4px 8px; border-radius: 4px; border: 1px solid #00ff00;";
     const logStyleStep = "color: #00ffff; font-family: monospace; font-size: 13px;";
     
@@ -513,7 +510,6 @@ function decryptSDES() {
     console.log("%c[S-DES] Ініціалізація алгоритму розшифрування...", logStyleHead);
     console.log(`%c🔑 Вхідний ключ: ${key}\n🔒 Шифротекст: ${cipher}`, logStyleStep);
 
-    // Допоміжні функції
     const permute = (bits, arr) => arr.map(i => bits[i - 1]).join('');
     const xor = (a, b) => a.split('').map((bit, i) => bit === b[i] ? '0' : '1').join('');
     const shiftLeft = (bits, n) => bits.slice(n) + bits.slice(0, n);
@@ -523,7 +519,6 @@ function decryptSDES() {
         return sbox[row][col].toString(2).padStart(2, '0');
     };
 
-    // Константи перестановок S-DES
     const P10 = [3, 5, 2, 7, 4, 10, 1, 9, 8, 6];
     const P8 = [6, 3, 7, 4, 8, 5, 10, 9];
     const IP = [2, 6, 3, 1, 4, 8, 5, 7];
@@ -533,7 +528,6 @@ function decryptSDES() {
     const S0 = [[1, 0, 3, 2], [3, 2, 1, 0], [0, 2, 1, 3], [3, 1, 3, 1]];
     const S1 = [[1, 1, 2, 3], [2, 0, 1, 3], [3, 0, 1, 0], [2, 1, 0, 3]];
 
-    // Генерація підключів
     const p10Key = permute(key, P10);
     let lk = shiftLeft(p10Key.slice(0, 5), 1);
     let rk = shiftLeft(p10Key.slice(5), 1);
@@ -545,7 +539,6 @@ function decryptSDES() {
 
     console.log(`%c[Ключі] K1: ${K1} | K2: ${K2}`, "color: #ff9900; font-family: monospace;");
 
-    // Раундова функція
     const fk = (bits, k) => {
         const L = bits.slice(0, 4);
         const R = bits.slice(4);
@@ -557,7 +550,6 @@ function decryptSDES() {
         return xor(L, p4Res) + R;
     };
 
-    // Розшифрування (Ключ K2, потім K1)
     const initPerm = permute(cipher, IP);
     console.log(`%cКрок 1 (IP): ${initPerm}`, logStyleStep);
 
@@ -574,14 +566,12 @@ function decryptSDES() {
     const plainDec = parseInt(plainBin, 2);
     console.log(`%cКрок 5 (IP_inv - ФІНАЛ): ${plainBin} -> ${plainDec}`, "color: #00ff00; font-family: monospace; font-size: 14px; font-weight: bold;");
 
-    // --- ФІШКА: Анімація підбору пароля ---
     const binEl = document.getElementById('sdes-res-bin');
     const decEl = document.getElementById('sdes-res-dec');
     
     let iterations = 0;
-    const maxIterations = 20; // Кількість кадрів анімації
+    const maxIterations = 20;
     const interval = setInterval(() => {
-        // Генеруємо фейкові дані
         binEl.innerText = Math.random().toString(2).substring(2, 10).padStart(8, '0');
         decEl.innerText = Math.floor(Math.random() * 255);
         
@@ -589,21 +579,19 @@ function decryptSDES() {
         
         if (iterations >= maxIterations) {
             clearInterval(interval);
-            // Виводимо правильний результат
             binEl.innerText = plainBin;
             decEl.innerText = plainDec;
             
-            // Маленька пасхалка, якщо варіант 25
             if (plainDec === 25) {
                 setTimeout(() => alert("💻 Систему зламано! Варіант 25 підтверджено."), 100);
             }
         }
-    }, 40); // Швидкість зміни цифр (в мілісекундах)
+    }, 40);
 }
 
 
 // ==========================================
-// 8. АВТОРИЗАЦІЯ
+// 8. АВТОРИЗАЦІЯ ТА СЕСІЯ
 // ==========================================
 
 async function performLogin() {
@@ -648,7 +636,6 @@ async function performLogin() {
             return;
         }
 
-        // Зберігаємо JWT після успішного входу
         localStorage.setItem('jwt_token', data.token);
 
         successMsg.innerText = data.message;
@@ -656,12 +643,8 @@ async function performLogin() {
 
         document.getElementById('login-password').value = '';
 
-        updateCurrentUser(data.user);
-
-        // Повертаємо класичне спливаюче вікно для входу
         alert(data.message);
 
-        // Затримка 1.5 секунди
         setTimeout(() => {
             showHome();
         }, 1500);
@@ -670,17 +653,35 @@ async function performLogin() {
         errorMsg.innerText =
             "Помилка з'єднання із сервером. Перевірте, чи він запущений.";
 
-        errorMsg.classList.remove('hidden');
+        errorMsg.classList.add('hidden');
     } finally {
         loginButton.disabled = false;
     }
 }
 
-function updateCurrentUser(user) {
+function updateCurrentUser(user, token) {
     const element = document.getElementById('current-user');
+    const jwtDisplay = document.getElementById('jwt-display');
 
     if (user) {
-        element.textContent = `Авторизований користувач: ${user.login} (ID: ${user.id})`;
+        element.textContent = `Авторизовано: ${user.login} (ID: ${user.id})`;
+    }
+    if (token) {
+        jwtDisplay.textContent = token;
+    } else {
+        jwtDisplay.textContent = localStorage.getItem('jwt_token') || '';
+    }
+}
+
+async function copyToken() {
+    const token = document.getElementById('jwt-display').textContent;
+    if (token) {
+        try {
+            await navigator.clipboard.writeText(token);
+            alert('JWT токен успішно скопійовано в буфер обміну!');
+        } catch (err) {
+            alert('Не вдалося скопіювати токен.');
+        }
     }
 }
 
@@ -720,12 +721,24 @@ async function requestProtectedRoute(route) {
 
 async function testProtectedAPI() {
     try {
-        // Перевіряємо маршрут /login, який вимагає валідний JWT
+        const token = localStorage.getItem('jwt_token');
         const data = await requestProtectedRoute('/login');
 
+        // Спливаюче вікно з даними бази та успішним статусом
         alert(
-            `${data.message}\nID користувача: ${data.id}`
+            `✅ ${data.message}\n` +
+            `📂 Дані з бази даних:\n` +
+            `Користувач: ${data.login}\n` +
+            `ID користувача: ${data.id}`
         );
+
+        // Показуємо панель сесії з токеном на сайті після закриття алерта
+        document.getElementById('session-dashboard').classList.remove('hidden');
+
+        updateCurrentUser({
+            login: data.login,
+            id: data.id
+        }, token);
 
     } catch (error) {
         alert(error.message);
@@ -745,6 +758,9 @@ function logout() {
     document.getElementById('login-error').classList.add('hidden');
     document.getElementById('login-success').classList.add('hidden');
     document.getElementById('current-user').innerText = '';
+    document.getElementById('jwt-display').innerText = ''; 
+    
+    document.getElementById('session-dashboard').classList.add('hidden');
 
     showLogin();
 }
@@ -765,10 +781,11 @@ async function initializeAuth() {
     try {
         const data = await requestProtectedRoute('/protected');
 
+        // Перевірка при запуску не відкриває панель автоматично, а лише готує дані
         updateCurrentUser({
             login: data.login,
             id: data.id
-        });
+        }, token);
 
         showHome();
 
