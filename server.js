@@ -1,4 +1,3 @@
-
 const express = require('express');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
@@ -9,7 +8,7 @@ const PORT = 3000;
 
 // Налаштування
 const SECRET_KEY = 'TarasYurkiv';
-const MY_LIST_NUMBER = 15;
+const MY_LIST_NUMBER = 25; // Змінено з 15 на 25
 
 // Обробка JSON
 app.use(express.json());
@@ -25,15 +24,15 @@ function hashPassword(password) {
 // У реальному проєкті користувачів варто зберігати в БД.
 const usersDb = {
     Yurkiv: {
-        id: 15,
+        id: 25, // Змінено з 15 на 25
         passwordHash: hashPassword('Taras')
     },
     Senkiv: {
-        id: 14,
+        id: 24,
         passwordHash: hashPassword('Yuriy')
     },
     Ata: {
-        id: 16,
+        id: 23,
         passwordHash: hashPassword('Andriy')
     }
 };
