@@ -228,3 +228,14 @@ input[type="file"] { display: none; }
     text-align: left;
     margin-bottom: 20px;
 }
+
+/* Компактний стиль для виділених результатів (S-DES) */
+strong.highlight-text {
+    display: inline-block;
+    padding: 2px 10px;
+    margin-bottom: 0;
+    margin-left: 6px;
+    border-radius: var(--radius-sm);
+    font-family: "SF Mono", "Consolas", monospace;
+    font-size: 1.05rem;
+}

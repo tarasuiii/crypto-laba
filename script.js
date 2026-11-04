@@ -1,4 +1,3 @@
-
 'use strict';
 
 // ==========================================
@@ -24,14 +23,25 @@ function openCipher(cipherType) {
     document.getElementById('home-screen').classList.add('hidden');
     document.getElementById('workspace-screen').classList.remove('hidden');
 
+    // Знаходимо цей верхній блок з файлами і текстом
+    const toolsSection = document.querySelector('.tools-section');
+
+    document.getElementById('caesar-controls').classList.add('hidden');
+    document.getElementById('trans-controls').classList.add('hidden');
+    document.getElementById('sdes-controls').classList.add('hidden');
+
     if (cipherType === 'caesar') {
         document.getElementById('workspace-title').innerText = 'Шифр Цезаря';
         document.getElementById('caesar-controls').classList.remove('hidden');
-        document.getElementById('trans-controls').classList.add('hidden');
-    } else {
+        toolsSection.classList.remove('hidden'); // Показуємо
+    } else if (cipherType === 'transposition') {
         document.getElementById('workspace-title').innerText = 'Шифр перестановки';
-        document.getElementById('caesar-controls').classList.add('hidden');
         document.getElementById('trans-controls').classList.remove('hidden');
+        toolsSection.classList.remove('hidden'); // Показуємо
+    } else if (cipherType === 'sdes') {
+        document.getElementById('workspace-title').innerText = 'Шифр S-DES';
+        document.getElementById('sdes-controls').classList.remove('hidden');
+        toolsSection.classList.add('hidden'); // ХОВАЄМО для S-DES
     }
 
     updateHash();
@@ -46,11 +56,17 @@ function goHome() {
     document.getElementById('matrix-output').classList.add('hidden');
 
     const toggleBtn = document.getElementById('toggle-matrix-btn');
-    toggleBtn.classList.add('hidden');
-    toggleBtn.innerText = '👁️ Показати матрицю';
+    if (toggleBtn) {
+        toggleBtn.classList.add('hidden');
+        toggleBtn.innerText = '👁️ Показати матрицю';
+    }
 
     document.getElementById('main-text').value = '';
     document.getElementById('file-input').value = '';
+    
+    // Очищення результатів S-DES
+    document.getElementById('sdes-res-bin').innerText = '-';
+    document.getElementById('sdes-res-dec').innerText = '-';
 
     updateHash();
 }
@@ -346,8 +362,6 @@ function processTransposition(action) {
         return;
     }
 
-    // Кожна позиція ключа зберігається окремо,
-    // щоб підтримувати повторювані символи.
     const keyChars = key.split('').map((char, index) => ({
         char,
         index
@@ -395,7 +409,7 @@ function processTransposition(action) {
         for (const colIndex of colOrder) {
             const columnLength =
                 remainder === 0 || colIndex < remainder
-                    ? fullRows
+                    ? fullRows + 1
                     : fullRows;
 
             for (let r = 0; r < columnLength; r++) {
@@ -479,7 +493,117 @@ function toggleMatrix() {
 
 
 // ==========================================
-// 7. АВТОРИЗАЦІЯ
+// 7. ШИФР S-DES (Лабораторна №3) + Фішки
+// ==========================================
+
+function decryptSDES() {
+    const key = document.getElementById('sdes-key').value;
+    const cipher = document.getElementById('sdes-cipher').value;
+
+    if (key.length !== 10 || cipher.length !== 8) {
+        alert("Введіть коректні дані: 10 біт для ключа та 8 біт для шифротексту.");
+        return;
+    }
+
+    // --- ФІШКА: Красивий кольоровий вивід у консоль ---
+    const logStyleHead = "color: #00ff00; font-weight: bold; background: #111; padding: 4px 8px; border-radius: 4px; border: 1px solid #00ff00;";
+    const logStyleStep = "color: #00ffff; font-family: monospace; font-size: 13px;";
+    
+    console.clear();
+    console.log("%c[S-DES] Ініціалізація алгоритму розшифрування...", logStyleHead);
+    console.log(`%c🔑 Вхідний ключ: ${key}\n🔒 Шифротекст: ${cipher}`, logStyleStep);
+
+    // Допоміжні функції
+    const permute = (bits, arr) => arr.map(i => bits[i - 1]).join('');
+    const xor = (a, b) => a.split('').map((bit, i) => bit === b[i] ? '0' : '1').join('');
+    const shiftLeft = (bits, n) => bits.slice(n) + bits.slice(0, n);
+    const sBox = (bits, sbox) => {
+        const row = parseInt(bits[0] + bits[3], 2);
+        const col = parseInt(bits[1] + bits[2], 2);
+        return sbox[row][col].toString(2).padStart(2, '0');
+    };
+
+    // Константи перестановок S-DES
+    const P10 = [3, 5, 2, 7, 4, 10, 1, 9, 8, 6];
+    const P8 = [6, 3, 7, 4, 8, 5, 10, 9];
+    const IP = [2, 6, 3, 1, 4, 8, 5, 7];
+    const IP_inv = [4, 1, 3, 5, 7, 2, 8, 6];
+    const EP = [4, 1, 2, 3, 2, 3, 4, 1];
+    const P4 = [2, 4, 3, 1];
+    const S0 = [[1, 0, 3, 2], [3, 2, 1, 0], [0, 2, 1, 3], [3, 1, 3, 1]];
+    const S1 = [[1, 1, 2, 3], [2, 0, 1, 3], [3, 0, 1, 0], [2, 1, 0, 3]];
+
+    // Генерація підключів
+    const p10Key = permute(key, P10);
+    let lk = shiftLeft(p10Key.slice(0, 5), 1);
+    let rk = shiftLeft(p10Key.slice(5), 1);
+    const K1 = permute(lk + rk, P8);
+
+    lk = shiftLeft(lk, 2);
+    rk = shiftLeft(rk, 2);
+    const K2 = permute(lk + rk, P8);
+
+    console.log(`%c[Ключі] K1: ${K1} | K2: ${K2}`, "color: #ff9900; font-family: monospace;");
+
+    // Раундова функція
+    const fk = (bits, k) => {
+        const L = bits.slice(0, 4);
+        const R = bits.slice(4);
+        const epR = permute(R, EP);
+        const xorR = xor(epR, k);
+        const s0Res = sBox(xorR.slice(0, 4), S0);
+        const s1Res = sBox(xorR.slice(4), S1);
+        const p4Res = permute(s0Res + s1Res, P4);
+        return xor(L, p4Res) + R;
+    };
+
+    // Розшифрування (Ключ K2, потім K1)
+    const initPerm = permute(cipher, IP);
+    console.log(`%cКрок 1 (IP): ${initPerm}`, logStyleStep);
+
+    const step1 = fk(initPerm, K2);
+    console.log(`%cКрок 2 (Fk з K2): ${step1}`, logStyleStep);
+
+    const sw = step1.slice(4) + step1.slice(0, 4);
+    console.log(`%cКрок 3 (SW): ${sw}`, logStyleStep);
+
+    const step2 = fk(sw, K1);
+    console.log(`%cКрок 4 (Fk з K1): ${step2}`, logStyleStep);
+
+    const plainBin = permute(step2, IP_inv);
+    const plainDec = parseInt(plainBin, 2);
+    console.log(`%cКрок 5 (IP_inv - ФІНАЛ): ${plainBin} -> ${plainDec}`, "color: #00ff00; font-family: monospace; font-size: 14px; font-weight: bold;");
+
+    // --- ФІШКА: Анімація підбору пароля ---
+    const binEl = document.getElementById('sdes-res-bin');
+    const decEl = document.getElementById('sdes-res-dec');
+    
+    let iterations = 0;
+    const maxIterations = 20; // Кількість кадрів анімації
+    const interval = setInterval(() => {
+        // Генеруємо фейкові дані
+        binEl.innerText = Math.random().toString(2).substring(2, 10).padStart(8, '0');
+        decEl.innerText = Math.floor(Math.random() * 255);
+        
+        iterations++;
+        
+        if (iterations >= maxIterations) {
+            clearInterval(interval);
+            // Виводимо правильний результат
+            binEl.innerText = plainBin;
+            decEl.innerText = plainDec;
+            
+            // Маленька пасхалка, якщо варіант 25
+            if (plainDec === 25) {
+                setTimeout(() => alert("💻 Систему зламано! Варіант 25 підтверджено."), 100);
+            }
+        }
+    }, 40); // Швидкість зміни цифр (в мілісекундах)
+}
+
+
+// ==========================================
+// 8. АВТОРИЗАЦІЯ
 // ==========================================
 
 async function performLogin() {
@@ -534,9 +658,13 @@ async function performLogin() {
 
         updateCurrentUser(data.user);
 
+        // Повертаємо класичне спливаюче вікно для входу
+        alert(data.message);
+
+        // Затримка 1.5 секунди
         setTimeout(() => {
             showHome();
-        }, 700);
+        }, 1500);
 
     } catch (error) {
         errorMsg.innerText =
@@ -558,7 +686,7 @@ function updateCurrentUser(user) {
 
 
 // ==========================================
-// 8. ПЕРЕВІРКА ЗАХИЩЕНИХ МАРШРУТІВ
+// 9. ПЕРЕВІРКА ЗАХИЩЕНИХ МАРШРУТІВ
 // ==========================================
 
 async function requestProtectedRoute(route) {
@@ -606,7 +734,7 @@ async function testProtectedAPI() {
 
 
 // ==========================================
-// 9. ВИХІД ІЗ СИСТЕМИ
+// 10. ВИХІД ІЗ СИСТЕМИ
 // ==========================================
 
 function logout() {
@@ -623,7 +751,7 @@ function logout() {
 
 
 // ==========================================
-// 10. ПЕРЕВІРКА ТОКЕНА ПРИ ЗАПУСКУ
+// 11. ПЕРЕВІРКА ТОКЕНА ПРИ ЗАПУСКУ
 // ==========================================
 
 async function initializeAuth() {

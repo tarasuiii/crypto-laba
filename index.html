@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Lab — Лабораторні 1 та 2</title>
+    <title>Crypto Lab — Лабораторні 1, 2 та 3</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -68,9 +67,9 @@
 
         <!-- Головний екран -->
         <div id="home-screen" class="screen hidden">
-            <h1>Лабораторні роботи 1 та 2</h1>
+            <h1>Лабораторні роботи 1, 2 та 3</h1>
             <p class="subtitle">
-                Криптографічний інструментарій + JWT-автентифікація
+                Криптографічний інструментарій + JWT + S-DES
             </p>
 
             <p id="current-user" class="subtitle"></p>
@@ -86,6 +85,13 @@
                     <span class="btn-icon">🔀</span>
                     Шифр перестановки
                     <small>Стовпцева перестановка та матриця</small>
+                </button>
+
+                <!-- Нова кнопка для Лабораторної №3 -->
+                <button class="menu-btn" onclick="openCipher('sdes')">
+                    <span class="btn-icon">🔐</span>
+                    Шифр S-DES
+                    <small>Спрощений DES (Лабораторна №3)</small>
                 </button>
 
                 <button
@@ -229,6 +235,43 @@
 
                 <div id="matrix-output" class="hidden analysis-box"></div>
             </section>
+
+            <!-- Шифр S-DES (Лабораторна №3) -->
+            <section id="sdes-controls" class="cipher-section hidden">
+                <div class="controls-row">
+                    <div class="form-group">
+                        <label for="sdes-key">10-бітний ключ:</label>
+                        <input 
+                            type="text" 
+                            id="sdes-key" 
+                            value="0011011101" 
+                            maxlength="10"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sdes-cipher">8-бітний шифротекст:</label>
+                        <input 
+                            type="text" 
+                            id="sdes-cipher" 
+                            value="00100001" 
+                            maxlength="8"
+                        >
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button onclick="decryptSDES()">
+                        🔓 Розшифрувати S-DES
+                    </button>
+                </div>
+
+                <div class="analysis-box" style="margin-top: 20px;">
+                    <p>Двійковий результат: <strong id="sdes-res-bin" class="highlight-text">-</strong></p>
+                    <p>Десятковий результат (Варіант): <strong id="sdes-res-dec" class="highlight-text">-</strong></p>
+                </div>
+            </section>
+
         </div>
     </div>
 
