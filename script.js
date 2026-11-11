@@ -1,23 +1,10 @@
 'use strict';
 
-// ==========================================
-// 1. ТЕМА САЙТУ
-// ==========================================
-
 function toggleTheme() {
     document.body.classList.toggle('dark-mode');
-
     const btn = document.getElementById('theme-toggle');
-
-    btn.innerText = document.body.classList.contains('dark-mode')
-        ? '☀️ Світла тема'
-        : '🌙 Темна тема';
+    btn.innerText = document.body.classList.contains('dark-mode') ? '☀️ Світла тема' : '🌙 Темна тема';
 }
-
-
-// ==========================================
-// 2. НАВІГАЦІЯ
-// ==========================================
 
 function openCipher(cipherType) {
     document.getElementById('home-screen').classList.add('hidden');
@@ -28,6 +15,7 @@ function openCipher(cipherType) {
     document.getElementById('caesar-controls').classList.add('hidden');
     document.getElementById('trans-controls').classList.add('hidden');
     document.getElementById('sdes-controls').classList.add('hidden');
+    document.getElementById('diffie-controls').classList.add('hidden');
 
     if (cipherType === 'caesar') {
         document.getElementById('workspace-title').innerText = 'Шифр Цезаря';
@@ -40,6 +28,10 @@ function openCipher(cipherType) {
     } else if (cipherType === 'sdes') {
         document.getElementById('workspace-title').innerText = 'Шифр S-DES';
         document.getElementById('sdes-controls').classList.remove('hidden');
+        toolsSection.classList.add('hidden');
+    } else if (cipherType === 'diffie') {
+        document.getElementById('workspace-title').innerText = 'Протокол Діффі-Хеллмана';
+        document.getElementById('diffie-controls').classList.remove('hidden');
         toolsSection.classList.add('hidden');
     }
 
@@ -81,11 +73,6 @@ function showLogin() {
     document.getElementById('login-screen').classList.remove('hidden');
 }
 
-
-// ==========================================
-// 3. SHA-256 ДЛЯ ТЕКСТУ
-// ==========================================
-
 async function updateHash() {
     const text = document.getElementById('main-text').value;
     const hashSpan = document.getElementById('text-hash');
@@ -109,70 +96,47 @@ async function updateHash() {
 
 document.getElementById('main-text').addEventListener('input', updateHash);
 
-
-// ==========================================
-// 4. РОБОТА З ФАЙЛАМИ
-// ==========================================
-
 document.getElementById('file-input').addEventListener('change', function (event) {
     const file = event.target.files[0];
-
     if (!file) return;
 
     const reader = new FileReader();
-
     reader.onload = function (e) {
         document.getElementById('main-text').value = e.target.result;
         updateHash();
     };
-
-    reader.onerror = function () {
-        alert('Не вдалося прочитати файл!');
-    };
-
     reader.readAsText(file);
     event.target.value = '';
 });
 
 function downloadResult() {
     const text = document.getElementById('main-text').value;
-
     if (!text) {
         alert('Немає тексту для збереження!');
         return;
     }
-
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-
     link.href = url;
     link.download = 'crypto_result.txt';
     link.click();
-
     URL.revokeObjectURL(url);
 }
 
 async function copyResult() {
     const text = document.getElementById('main-text').value;
-
     if (!text) {
         alert('Немає тексту для копіювання!');
         return;
     }
-
     try {
         await navigator.clipboard.writeText(text);
         alert('Текст скопійовано!');
     } catch (error) {
-        alert('Не вдалося скопіювати текст. Перевірте дозволи браузера.');
+        alert('Не вдалося скопіювати текст.');
     }
 }
-
-
-// ==========================================
-// 5. ШИФР ЦЕЗАРЯ
-// ==========================================
 
 const ALPHABETS = {
     en: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -180,22 +144,13 @@ const ALPHABETS = {
 };
 
 const DICTIONARY = {
-    uk: [
-        ' В ', ' НА ', ' І ', ' З ', ' ТА ', ' ЩО ',
-        ' ЯК ', ' МИ ', ' ЦЕ ', ' ВОНО ', ' ТАК ',
-        ' ДО ', ' ПО ', ' НЕ ', ' А '
-    ],
-    en: [
-        ' THE ', ' IN ', ' AND ', ' TO ', ' OF ',
-        ' A ', ' IS ', ' IT ', ' YOU ', ' THAT ',
-        ' HE ', ' WAS ', ' FOR ', ' ON ', ' ARE ', ' WITH '
-    ]
+    uk: [' В ', ' НА ', ' І ', ' З ', ' ТА ', ' ЩО ', ' ЯК ', ' МИ ', ' ЦЕ ', ' ВОНО ', ' ТАК ', ' ДО ', ' ПО ', ' НЕ ', ' А '],
+    en: [' THE ', ' IN ', ' AND ', ' TO ', ' OF ', ' A ', ' IS ', ' IT ', ' YOU ', ' THAT ', ' HE ', ' WAS ', ' FOR ', ' ON ', ' ARE ', ' WITH ']
 };
 
 function getCaesarResult(text, lang, key, action) {
     const alphabet = ALPHABETS[lang];
     const n = alphabet.length;
-
     key = ((key % n) + n) % n;
 
     if (action === 'decrypt') {
@@ -203,23 +158,16 @@ function getCaesarResult(text, lang, key, action) {
     }
 
     let result = '';
-
     for (const char of text) {
         const upperChar = char.toUpperCase();
         const idx = alphabet.indexOf(upperChar);
-
         if (idx === -1) {
             result += char;
             continue;
         }
-
         const newChar = alphabet[(idx + key) % n];
-
-        result += char === upperChar
-            ? newChar
-            : newChar.toLowerCase();
+        result += char === upperChar ? newChar : newChar.toLowerCase();
     }
-
     return result;
 }
 
@@ -233,12 +181,9 @@ function processCaesar(action) {
         return;
     }
 
-    document.getElementById('main-text').value =
-        getCaesarResult(text, lang, key, action);
-
+    document.getElementById('main-text').value = getCaesarResult(text, lang, key, action);
     document.getElementById('brute-force-output').classList.add('hidden');
     document.getElementById('frequency-output').classList.add('hidden');
-
     updateHash();
 }
 
@@ -255,7 +200,6 @@ function bruteForceCaesar() {
     }
 
     outputBox.innerHTML = '<h3>Можливі варіанти дешифрування:</h3>';
-
     for (let key = 1; key < alphabet.length; key++) {
         const attempt = getCaesarResult(text, lang, key, 'decrypt');
         const cleanText = ' ' + attempt.toUpperCase() + ' ';
@@ -263,16 +207,12 @@ function bruteForceCaesar() {
 
         const row = document.createElement('div');
         row.className = 'brute-row' + (score > 0 ? ' best-match' : '');
-
         const label = document.createElement('strong');
         label.textContent = `Ключ ${key}${score > 0 ? ' ⭐' : ''}: `;
-
         row.appendChild(label);
         row.appendChild(document.createTextNode(attempt.slice(0, 120)));
-
         outputBox.appendChild(row);
     }
-
     outputBox.classList.remove('hidden');
     document.getElementById('frequency-output').classList.add('hidden');
 }
@@ -295,7 +235,6 @@ function analyzeFrequency() {
     for (const char of text) {
         if (alphabet.includes(char)) {
             counts[char] = (counts[char] || 0) + 1;
-
             if (counts[char] > maxCount) {
                 maxCount = counts[char];
                 maxChar = char;
@@ -309,16 +248,10 @@ function analyzeFrequency() {
     }
 
     const expectedChar = lang === 'uk' ? 'О' : 'E';
-    const suggestedKey = (
-        alphabet.indexOf(maxChar) -
-        alphabet.indexOf(expectedChar) +
-        alphabet.length
-    ) % alphabet.length;
+    const suggestedKey = (alphabet.indexOf(maxChar) - alphabet.indexOf(expectedChar) + alphabet.length) % alphabet.length;
 
     document.getElementById('freq-suggestion').innerText =
-        `Найчастіша літера: ${maxChar} (${maxCount} разів). ` +
-        `Припущення: літера ${expectedChar}. ` +
-        `Ймовірний ключ: ${suggestedKey}.`;
+        `Найчастіша літера: ${maxChar} (${maxCount} разів). Припущення: літера ${expectedChar}. Ймовірний ключ: ${suggestedKey}.`;
 
     const chart = document.getElementById('freq-chart');
     chart.innerHTML = '';
@@ -346,11 +279,6 @@ function analyzeFrequency() {
     document.getElementById('brute-force-output').classList.add('hidden');
 }
 
-
-// ==========================================
-// 6. ШИФР ПЕРЕСТАНОВКИ
-// ==========================================
-
 function processTransposition(action) {
     const text = document.getElementById('main-text').value;
     const key = document.getElementById('trans-key').value;
@@ -360,67 +288,37 @@ function processTransposition(action) {
         return;
     }
 
-    const keyChars = key.split('').map((char, index) => ({
-        char,
-        index
-    }));
-
-    keyChars.sort((a, b) => {
-        const comparison = a.char.toLowerCase()
-            .localeCompare(b.char.toLowerCase());
-
-        return comparison || a.index - b.index;
-    });
+    const keyChars = key.split('').map((char, index) => ({ char, index }));
+    keyChars.sort((a, b) => a.char.toLowerCase().localeCompare(b.char.toLowerCase()) || a.index - b.index);
 
     const colOrder = keyChars.map(item => item.index);
     const cols = key.length;
     const rows = Math.ceil(text.length / cols);
-    const grid = Array.from(
-        { length: rows },
-        () => Array(cols).fill('')
-    );
+    const grid = Array.from({ length: rows }, () => Array(cols).fill(''));
 
     let result = '';
-
     if (action === 'encrypt') {
         let k = 0;
-
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < cols; c++) {
-                if (k < text.length) {
-                    grid[r][c] = text[k++];
-                }
+                if (k < text.length) grid[r][c] = text[k++];
             }
         }
-
         for (const colIndex of colOrder) {
-            for (let r = 0; r < rows; r++) {
-                result += grid[r][colIndex];
-            }
+            for (let r = 0; r < rows; r++) result += grid[r][colIndex];
         }
     } else {
         const remainder = text.length % cols;
         const fullRows = Math.floor(text.length / cols);
-
         let k = 0;
-
         for (const colIndex of colOrder) {
-            const columnLength =
-                remainder === 0 || colIndex < remainder
-                    ? fullRows + 1
-                    : fullRows;
-
+            const columnLength = remainder === 0 || colIndex < remainder ? fullRows + 1 : fullRows;
             for (let r = 0; r < columnLength; r++) {
-                if (k < text.length) {
-                    grid[r][colIndex] = text[k++];
-                }
+                if (k < text.length) grid[r][colIndex] = text[k++];
             }
         }
-
         for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                result += grid[r][c];
-            }
+            for (let c = 0; c < cols; c++) result += grid[r][c];
         }
     }
 
@@ -429,35 +327,19 @@ function processTransposition(action) {
 
     let matrixHtml = '<h3>Структура матриці:</h3>';
     matrixHtml += '<table class="matrix-table"><tr>';
-
     const displayOrder = Array(cols).fill(0);
+    colOrder.forEach((colIndex, i) => { displayOrder[colIndex] = i + 1; });
 
-    colOrder.forEach((colIndex, i) => {
-        displayOrder[colIndex] = i + 1;
-    });
-
-    for (let c = 0; c < cols; c++) {
-        matrixHtml += `<th>${displayOrder[c]}</th>`;
-    }
-
+    for (let c = 0; c < cols; c++) matrixHtml += `<th>${displayOrder[c]}</th>`;
     matrixHtml += '</tr><tr>';
-
-    for (let c = 0; c < cols; c++) {
-        matrixHtml += `<th>${escapeHtml(key[c])}</th>`;
-    }
-
+    for (let c = 0; c < cols; c++) matrixHtml += `<th>${escapeHtml(key[c])}</th>`;
     matrixHtml += '</tr>';
 
     for (let r = 0; r < rows; r++) {
         matrixHtml += '<tr>';
-
-        for (let c = 0; c < cols; c++) {
-            matrixHtml += `<td>${escapeHtml(grid[r][c] || ' ')}</td>`;
-        }
-
+        for (let c = 0; c < cols; c++) matrixHtml += `<td>${escapeHtml(grid[r][c] || ' ')}</td>`;
         matrixHtml += '</tr>';
     }
-
     matrixHtml += '</table>';
 
     const matrixContainer = document.getElementById('matrix-output');
@@ -470,30 +352,19 @@ function processTransposition(action) {
 }
 
 function escapeHtml(value) {
-    return String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+    return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
 
 function toggleMatrix() {
     const matrix = document.getElementById('matrix-output');
     const btn = document.getElementById('toggle-matrix-btn');
-
     matrix.classList.toggle('hidden');
-
-    btn.innerText = matrix.classList.contains('hidden')
-        ? '👁️ Показати матрицю'
-        : '🙈 Сховати матрицю';
+    btn.innerText = matrix.classList.contains('hidden') ? '👁️ Показати матрицю' : '🙈 Сховати матрицю';
 }
 
-
 // ==========================================
-// 7. ШИФР S-DES (Лабораторна №3) + Фішки
+// ЛАБОРАТОРНА №3: ШИФР S-DES
 // ==========================================
-
 function decryptSDES() {
     const key = document.getElementById('sdes-key').value;
     const cipher = document.getElementById('sdes-cipher').value;
@@ -502,13 +373,6 @@ function decryptSDES() {
         alert("Введіть коректні дані: 10 біт для ключа та 8 біт для шифротексту.");
         return;
     }
-
-    const logStyleHead = "color: #00ff00; font-weight: bold; background: #111; padding: 4px 8px; border-radius: 4px; border: 1px solid #00ff00;";
-    const logStyleStep = "color: #00ffff; font-family: monospace; font-size: 13px;";
-    
-    console.clear();
-    console.log("%c[S-DES] Ініціалізація алгоритму розшифрування...", logStyleHead);
-    console.log(`%c🔑 Вхідний ключ: ${key}\n🔒 Шифротекст: ${cipher}`, logStyleStep);
 
     const permute = (bits, arr) => arr.map(i => bits[i - 1]).join('');
     const xor = (a, b) => a.split('').map((bit, i) => bit === b[i] ? '0' : '1').join('');
@@ -537,8 +401,6 @@ function decryptSDES() {
     rk = shiftLeft(rk, 2);
     const K2 = permute(lk + rk, P8);
 
-    console.log(`%c[Ключі] K1: ${K1} | K2: ${K2}`, "color: #ff9900; font-family: monospace;");
-
     const fk = (bits, k) => {
         const L = bits.slice(0, 4);
         const R = bits.slice(4);
@@ -551,56 +413,99 @@ function decryptSDES() {
     };
 
     const initPerm = permute(cipher, IP);
-    console.log(`%cКрок 1 (IP): ${initPerm}`, logStyleStep);
-
     const step1 = fk(initPerm, K2);
-    console.log(`%cКрок 2 (Fk з K2): ${step1}`, logStyleStep);
-
     const sw = step1.slice(4) + step1.slice(0, 4);
-    console.log(`%cКрок 3 (SW): ${sw}`, logStyleStep);
-
     const step2 = fk(sw, K1);
-    console.log(`%cКрок 4 (Fk з K1): ${step2}`, logStyleStep);
-
     const plainBin = permute(step2, IP_inv);
     const plainDec = parseInt(plainBin, 2);
-    console.log(`%cКрок 5 (IP_inv - ФІНАЛ): ${plainBin} -> ${plainDec}`, "color: #00ff00; font-family: monospace; font-size: 14px; font-weight: bold;");
 
     const binEl = document.getElementById('sdes-res-bin');
     const decEl = document.getElementById('sdes-res-dec');
     
-    let iterations = 0;
-    const maxIterations = 20;
-    const interval = setInterval(() => {
-        binEl.innerText = Math.random().toString(2).substring(2, 10).padStart(8, '0');
-        decEl.innerText = Math.floor(Math.random() * 255);
-        
-        iterations++;
-        
-        if (iterations >= maxIterations) {
-            clearInterval(interval);
-            binEl.innerText = plainBin;
-            decEl.innerText = plainDec;
-            
-            if (plainDec === 25) {
-                setTimeout(() => alert("💻 Систему зламано! Варіант 25 підтверджено."), 100);
-            }
-        }
-    }, 40);
+    binEl.innerText = plainBin;
+    decEl.innerText = plainDec;
+    if (plainDec === 25) {
+        setTimeout(() => alert("💻 Систему зламано! Варіант 25 підтверджено."), 100);
+    }
 }
 
+// ==========================================
+// ЛАБОРАТОРНА №4: ПРОТОКОЛ ДІФФІ-ХЕЛЛМАНА ТА MITM
+// ==========================================
+function modPow(base, exp, mod) {
+    let res = 1n;
+    base = BigInt(base) % BigInt(mod);
+    exp = BigInt(exp);
+    mod = BigInt(mod);
+    while (exp > 0n) {
+        if (exp % 2n === 1n) res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp /= 2n;
+    }
+    return Number(res);
+}
+
+function runDiffieHellman() {
+    const p = parseInt(document.getElementById('dh-p').value);
+    const g = parseInt(document.getElementById('dh-g').value);
+    const a = parseInt(document.getElementById('dh-a').value);
+    const b = parseInt(document.getElementById('dh-b').value);
+
+    const A = modPow(g, a, p);
+    const B = modPow(g, b, p);
+
+    const keyAlice = modPow(B, a, p);
+    const keyBob = modPow(A, b, p);
+
+    const outputBox = document.getElementById('dh-output');
+    outputBox.innerHTML = `
+        <h3 style="color: var(--success);">✅ Протокол Діффі-Хеллмана успішно виконано:</h3>
+        <p>1. Параметри протоколу: <b>p = ${p}, g = ${g}</b></p>
+        <p>2. Секретні числа: <b>a = ${a}</b> (Аліса), <b>b = ${b}</b> (Боб)</p>
+        <p>3. Відкритий ключ Аліси (A = g^a mod p): <b style="color: var(--primary);">${A}</b></p>
+        <p>4. Відкритий ключ Боба (B = g^b mod p): <b style="color: var(--primary);">${B}</b></p>
+        <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 12px 0;">
+        <p>🔑 Спільний секретний ключ у Аліси (K = B^a mod p): <b style="color: var(--success);">${keyAlice}</b></p>
+        <p>🔑 Спільний секретний ключ у Боба (K = A^b mod p): <b style="color: var(--success);">${keyBob}</b></p>
+    `;
+}
+
+function runMITMAttack() {
+    const p = parseInt(document.getElementById('dh-p').value);
+    const g = parseInt(document.getElementById('dh-g').value);
+    const a = parseInt(document.getElementById('dh-a').value);
+    const b = parseInt(document.getElementById('dh-b').value);
+    
+    const c1 = 15;
+    const c2 = 22;
+
+    const A = modPow(g, a, p);
+    const B = modPow(g, b, p);
+
+    const Atrap = modPow(g, c1, p);
+    const Btrap = modPow(g, c2, p);
+
+    const keyAttackerAlice = modPow(A, c1, p);
+    const keyAttackerBob = modPow(B, c2, p);
+
+    const outputBox = document.getElementById('dh-output');
+    outputBox.innerHTML = `
+        <h3 style="color: var(--danger);">⚠️ Симуляція атаки «Людина посередині» (MITM):</h3>
+        <p>1. Аліса надсилає відкритий ключ <b>A = ${A}</b>, але Зловмисник перехоплює його і підсилає Бобу власний ключ <b style="color: var(--danger);">${Atrap}</b>.</p>
+        <p>2. Боб надсилає відкритий ключ <b>B = ${B}</b>, але Зловмисник перехоплює його і підсилає Алісі свій ключ <b style="color: var(--danger);">${Btrap}</b>.</p>
+        <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 12px 0;">
+        <p>🔓 Ключ між Алісою та Зловмисником: <b style="color: var(--danger);">${keyAttackerAlice}</b></p>
+        <p>🔓 Ключ між Бобом та Зловмисником: <b style="color: var(--danger);">${keyAttackerBob}</b></p>
+        <p style="margin-top: 12px; color: var(--warning);"><b>Висновок:</b> Аліса та Боб не підозрюють про підміну, але тепер зловмисник розшифровує всі повідомлення між ними за допомогою двох окремих секретів!</p>
+    `;
+}
 
 // ==========================================
-// 8. АВТОРИЗАЦІЯ ТА СЕСІЯ
+// АВТОРИЗАЦІЯ ТА JWT
 // ==========================================
-
 async function performLogin() {
-    const loginInput =
-        document.getElementById('login-username').value.trim();
-
-    const passwordInput =
-        document.getElementById('login-password').value;
-
+    const loginInput = document.getElementById('login-username').value.trim();
+    const passwordInput = document.getElementById('login-password').value;
     const errorMsg = document.getElementById('login-error');
     const successMsg = document.getElementById('login-success');
     const loginButton = document.getElementById('login-button');
@@ -619,17 +524,11 @@ async function performLogin() {
     try {
         const response = await fetch('/login', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                login: loginInput,
-                password: passwordInput
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ login: loginInput, password: passwordInput })
         });
 
         const data = await response.json();
-
         if (!response.ok) {
             errorMsg.innerText = data.message || 'Помилка авторизації!';
             errorMsg.classList.remove('hidden');
@@ -637,22 +536,15 @@ async function performLogin() {
         }
 
         localStorage.setItem('jwt_token', data.token);
-
         successMsg.innerText = data.message;
         successMsg.classList.remove('hidden');
-
         document.getElementById('login-password').value = '';
 
         alert(data.message);
-
-        setTimeout(() => {
-            showHome();
-        }, 1500);
+        setTimeout(() => { showHome(); }, 1500);
 
     } catch (error) {
-        errorMsg.innerText =
-            "Помилка з'єднання із сервером. Перевірте, чи він запущений.";
-
+        errorMsg.innerText = "Помилка з'єднання із сервером.";
         errorMsg.classList.add('hidden');
     } finally {
         loginButton.disabled = false;
@@ -678,44 +570,33 @@ async function copyToken() {
     if (token) {
         try {
             await navigator.clipboard.writeText(token);
-            alert('JWT токен успішно скопійовано в буфер обміну!');
+            alert('JWT токен успішно скопійовано!');
         } catch (err) {
             alert('Не вдалося скопіювати токен.');
         }
     }
 }
 
-
-// ==========================================
-// 9. ПЕРЕВІРКА ЗАХИЩЕНИХ МАРШРУТІВ
-// ==========================================
-
 async function requestProtectedRoute(route) {
     const token = localStorage.getItem('jwt_token');
-
     if (!token) {
         showLogin();
-        throw new Error('JWT-токен не знайдено. Увійдіть у систему.');
+        throw new Error('JWT-токен не знайдено.');
     }
 
     const response = await fetch(route, {
         method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` }
     });
 
     const data = await response.json();
-
     if (!response.ok) {
         if (response.status === 401) {
             localStorage.removeItem('jwt_token');
             showLogin();
         }
-
         throw new Error(data.message || 'Помилка перевірки токена.');
     }
-
     return data;
 }
 
@@ -724,7 +605,6 @@ async function testProtectedAPI() {
         const token = localStorage.getItem('jwt_token');
         const data = await requestProtectedRoute('/login');
 
-        // Спливаюче вікно з даними бази та успішним статусом
         alert(
             `✅ ${data.message}\n` +
             `📂 Дані з бази даних:\n` +
@@ -732,47 +612,29 @@ async function testProtectedAPI() {
             `ID користувача: ${data.id}`
         );
 
-        // Показуємо панель сесії з токеном на сайті після закриття алерта
         document.getElementById('session-dashboard').classList.remove('hidden');
-
-        updateCurrentUser({
-            login: data.login,
-            id: data.id
-        }, token);
+        updateCurrentUser({ login: data.login, id: data.id }, token);
 
     } catch (error) {
         alert(error.message);
     }
 }
 
-
-// ==========================================
-// 10. ВИХІД ІЗ СИСТЕМИ
-// ==========================================
-
 function logout() {
     localStorage.removeItem('jwt_token');
-
     document.getElementById('login-username').value = '';
     document.getElementById('login-password').value = '';
     document.getElementById('login-error').classList.add('hidden');
     document.getElementById('login-success').classList.add('hidden');
     document.getElementById('current-user').innerText = '';
     document.getElementById('jwt-display').innerText = ''; 
-    
     document.getElementById('session-dashboard').classList.add('hidden');
 
     showLogin();
 }
 
-
-// ==========================================
-// 11. ПЕРЕВІРКА ТОКЕНА ПРИ ЗАПУСКУ
-// ==========================================
-
 async function initializeAuth() {
     const token = localStorage.getItem('jwt_token');
-
     if (!token) {
         showLogin();
         return;
@@ -780,15 +642,8 @@ async function initializeAuth() {
 
     try {
         const data = await requestProtectedRoute('/protected');
-
-        // Перевірка при запуску не відкриває панель автоматично, а лише готує дані
-        updateCurrentUser({
-            login: data.login,
-            id: data.id
-        }, token);
-
+        updateCurrentUser({ login: data.login, id: data.id }, token);
         showHome();
-
     } catch (error) {
         showLogin();
     }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Lab — Лабораторні 1, 2 та 3</title>
+    <title>Crypto Lab — Лабораторні 1-4</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -59,7 +59,7 @@
                 <p
                     id="login-success"
                     class="hidden"
-                    style="color: #22c55e; margin-top: 15px; font-weight: bold;"
+                    style="color: var(--success); margin-top: 15px; font-weight: bold;"
                     role="status"
                 ></p>
             </div>
@@ -67,9 +67,9 @@
 
         <!-- Головний екран -->
         <div id="home-screen" class="screen hidden">
-            <h1>Лабораторні роботи 1, 2 та 3</h1>
+            <h1>Криптографічні лабораторні</h1>
             <p class="subtitle">
-                Криптографічний інструментарій + JWT + S-DES
+                Лабораторні роботи №1, №2, №3 та №4
             </p>
 
             <div class="main-menu">
@@ -91,6 +91,12 @@
                     <small>Спрощений DES (Лабораторна №3)</small>
                 </button>
 
+                <button class="menu-btn" onclick="openCipher('diffie')">
+                    <span class="btn-icon">🤝</span>
+                    Протокол DH & MITM
+                    <small>Діффі-Хеллман та атака (Лабораторна №4)</small>
+                </button>
+
                 <button
                     class="menu-btn"
                     onclick="testProtectedAPI()"
@@ -102,8 +108,8 @@
                 </button>
             </div>
 
-            <!-- Панель сесії користувача (тепер знаходиться ЗНИЗУ під кнопкою) -->
-            <div id="session-dashboard" class="session-dashboard hidden" style="margin-top: 30px;">
+            <!-- Панель сесії користувача (з'являється знизу після перевірки токена) -->
+            <div id="session-dashboard" class="session-dashboard hidden">
                 <div class="session-header">
                     <span class="status-indicator"></span>
                     <h3 id="current-user"></h3>
@@ -124,13 +130,13 @@
             </button>
         </div>
 
-        <!-- Екран роботи з шифрами -->
+        <!-- Екран роботи з шифрами та протоколами -->
         <div id="workspace-screen" class="screen hidden">
             <div class="header-nav">
                 <button onclick="goHome()" class="btn-secondary back-btn">
                     ⬅ На головну
                 </button>
-                <h1 id="workspace-title">Назва шифру</h1>
+                <h1 id="workspace-title">Назва</h1>
             </div>
 
             <section class="tools-section">
@@ -188,25 +194,13 @@
                 </div>
 
                 <div class="buttons">
-                    <button onclick="processCaesar('encrypt')">
-                        🔒 Зашифрувати
-                    </button>
-
-                    <button onclick="processCaesar('decrypt')">
-                        🔓 Дешифрувати
-                    </button>
-
-                    <button onclick="bruteForceCaesar()" class="btn-danger">
-                        💣 Brute-force
-                    </button>
-
-                    <button onclick="analyzeFrequency()" class="btn-warning">
-                        📊 Частотний аналіз
-                    </button>
+                    <button onclick="processCaesar('encrypt')">🔒 Зашифрувати</button>
+                    <button onclick="processCaesar('decrypt')">🔓 Дешифрувати</button>
+                    <button onclick="bruteForceCaesar()" class="btn-danger">💣 Brute-force</button>
+                    <button onclick="analyzeFrequency()" class="btn-warning">📊 Частотний аналіз</button>
                 </div>
 
                 <div id="brute-force-output" class="hidden analysis-box"></div>
-
                 <div id="frequency-output" class="hidden analysis-box">
                     <h3>Результати частотного аналізу</h3>
                     <p id="freq-suggestion" class="highlight-text"></p>
@@ -218,31 +212,13 @@
             <section id="trans-controls" class="cipher-section hidden">
                 <div class="form-group">
                     <label for="trans-key">Ключове слово:</label>
-                    <input
-                        type="text"
-                        id="trans-key"
-                        placeholder="Шифр"
-                    >
+                    <input type="text" id="trans-key" placeholder="Шифр">
                 </div>
-
                 <div class="buttons">
-                    <button onclick="processTransposition('encrypt')">
-                        🔒 Зашифрувати
-                    </button>
-
-                    <button onclick="processTransposition('decrypt')">
-                        🔓 Дешифрувати
-                    </button>
-
-                    <button
-                        id="toggle-matrix-btn"
-                        onclick="toggleMatrix()"
-                        class="btn-secondary hidden"
-                    >
-                        👁️ Показати матрицю
-                    </button>
+                    <button onclick="processTransposition('encrypt')">🔒 Зашифрувати</button>
+                    <button onclick="processTransposition('decrypt')">🔓 Дешифрувати</button>
+                    <button id="toggle-matrix-btn" onclick="toggleMatrix()" class="btn-secondary hidden">👁️ Показати матрицю</button>
                 </div>
-
                 <div id="matrix-output" class="hidden analysis-box"></div>
             </section>
 
@@ -251,34 +227,52 @@
                 <div class="controls-row">
                     <div class="form-group">
                         <label for="sdes-key">10-бітний ключ:</label>
-                        <input 
-                            type="text" 
-                            id="sdes-key" 
-                            value="0011011101" 
-                            maxlength="10"
-                        >
+                        <input type="text" id="sdes-key" value="0011011101" maxlength="10">
                     </div>
-
                     <div class="form-group">
-                        <label for="sdes-cipher">8-бітний шифротекст:</label>
-                        <input 
-                            type="text" 
-                            id="sdes-cipher" 
-                            value="00100001" 
-                            maxlength="8"
-                        >
+                        <label for="sdes-бітний">8-бітний шифротекст:</label>
+                        <input type="text" id="sdes-cipher" value="00100001" maxlength="8">
+                    </div>
+                </div>
+                <div class="buttons">
+                    <button onclick="decryptSDES()">🔓 Розшифрувати S-DES</button>
+                </div>
+                <div class="analysis-box" style="margin-top: 20px;">
+                    <p>Двійковий результат: <strong id="sdes-res-bin" class="highlight-text">-</strong></p>
+                    <p>Десятковий результат (Варіант): <strong id="sdes-res-dec" class="highlight-text">-</strong></p>
+                </div>
+            </section>
+
+            <!-- Протокол Діффі-Хеллмана (Лабораторна №4) -->
+            <section id="diffie-controls" class="cipher-section hidden">
+                <div class="controls-row">
+                    <div class="form-group">
+                        <label for="dh-p">Просте число (p):</label>
+                        <input type="number" id="dh-p" value="331">
+                    </div>
+                    <div class="form-group">
+                        <label for="dh-g">Генератор (g):</label>
+                        <input type="number" id="dh-g" value="204">
+                    </div>
+                </div>
+                <div class="controls-row">
+                    <div class="form-group">
+                        <label for="dh-a">Секрет Аліси (a):</label>
+                        <input type="number" id="dh-a" value="46">
+                    </div>
+                    <div class="form-group">
+                        <label for="dh-b">Секрет Боба (b):</label>
+                        <input type="number" id="dh-b" value="56">
                     </div>
                 </div>
 
                 <div class="buttons">
-                    <button onclick="decryptSDES()">
-                        🔓 Розшифрувати S-DES
-                    </button>
+                    <button onclick="runDiffieHellman()">🚀 Запустити протокол DH</button>
+                    <button onclick="runMITMAttack()" class="btn-danger">🕵️‍♂️ Симуляція MITM атаки</button>
                 </div>
 
-                <div class="analysis-box" style="margin-top: 20px;">
-                    <p>Двійковий результат: <strong id="sdes-res-bin" class="highlight-text">-</strong></p>
-                    <p>Десятковий результат (Варіант): <strong id="sdes-res-dec" class="highlight-text">-</strong></p>
+                <div id="dh-output" class="analysis-box" style="margin-top: 20px;">
+                    <p>Натисніть кнопку вище, щоб виконати розрахунки протоколу Діффі-Хеллмана.</p>
                 </div>
             </section>
 
