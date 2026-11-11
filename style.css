@@ -236,20 +236,9 @@ button.menu-btn:hover {
     transform: translateY(-4px);
     opacity: 1;
 }
-button.menu-btn:hover .btn-icon { transform: scale(1.08); background: rgba(0, 113, 227, 0.2); }
-button.menu-btn:active { transform: translateY(0) scale(0.98); }
-
-button.menu-btn small { 
-    display: block; 
-    font-size: 0.85rem; 
-    color: var(--text-secondary); 
-    margin-top: 6px; 
-    font-weight: 400; 
-    line-height: 1.4;
-}
 
 /* =========================================
-   ФАЙЛИ, ХЕШ ТА АНАЛІЗ
+   ФАЙЛИ ТА АНАЛІЗ
 ========================================= */
 .file-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 20px; }
 input[type="file"] { display: none; }
@@ -258,155 +247,96 @@ input[type="file"] { display: none; }
     background-color: var(--secondary-bg); backdrop-filter: blur(10px);
     border-radius: var(--radius-sm); font-weight: 500; 
     font-size: 14px; border: 1px solid var(--card-border); color: var(--text-secondary);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
     transition: all 0.2s ease;
 }
 .custom-file-upload:hover { background-color: var(--card-border); transform: translateY(-1px);}
 
 .hash-display { 
-    margin-top: 16px; 
-    padding: 16px 20px; 
-    background-color: var(--secondary-bg); 
-    backdrop-filter: blur(10px);
-    border-radius: var(--radius-md); 
-    border: 1px solid var(--card-border);
-    word-break: break-all; 
-    font-size: 0.85rem;
+    margin-top: 16px; padding: 16px 20px; 
+    background-color: var(--secondary-bg); backdrop-filter: blur(10px);
+    border-radius: var(--radius-md); border: 1px solid var(--card-border);
+    word-break: break-all; font-size: 0.85rem;
 }
-#text-hash { 
-    font-family: "SF Mono", "Consolas", monospace; 
-    color: var(--hash); 
-    font-weight: 600; 
-    font-size: 0.9rem; 
-    margin-top: 6px; 
-    display: block;
-}
+#text-hash { font-family: "SF Mono", "Consolas", monospace; color: var(--hash); font-weight: 600; font-size: 0.9rem; margin-top: 6px; display: block; }
 
 .analysis-box { 
-    background-color: var(--secondary-bg); 
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--card-border); 
-    border-radius: var(--radius-md); 
-    padding: 24px; 
-    margin-top: 24px; 
-    max-height: 400px; 
-    overflow-y: auto; 
+    background-color: var(--secondary-bg); backdrop-filter: blur(12px);
+    border: 1px solid var(--card-border); border-radius: var(--radius-md); 
+    padding: 24px; margin-top: 24px; max-height: 450px; overflow-y: auto; 
     box-shadow: 0 8px 24px rgba(0,0,0,0.04);
 }
-.brute-row { padding: 10px 0; border-bottom: 1px solid var(--card-border); font-family: "SF Mono", "Consolas", monospace; font-size: 13px;}
-.brute-row:last-child { border-bottom: none; }
-.brute-row strong { color: var(--danger); margin-right: 10px; }
-.best-match { background-color: rgba(52, 199, 89, 0.15); border-radius: var(--radius-sm); padding: 10px; margin: 4px 0; border: 1px solid rgba(52, 199, 89, 0.3);}
-.highlight-text { background-color: rgba(0, 113, 227, 0.1); padding: 16px; border-radius: var(--radius-md); margin-bottom: 20px; font-weight: 500; color: var(--primary);}
-
-strong.highlight-text {
-    display: inline-block;
-    padding: 4px 12px;
-    margin-bottom: 0;
-    margin-left: 8px;
-    border-radius: var(--radius-sm);
-    font-family: "SF Mono", "Consolas", monospace;
-    font-size: 1.1rem;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-}
-
-.chart-container { display: flex; align-items: flex-end; height: 160px; gap: 4px; padding-top: 20px; border-bottom: 1px solid var(--card-border); }
-.chart-bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
-.chart-bar { width: 100%; background: var(--primary-gradient); border-radius: 4px 4px 0 0; transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1);}
-.chart-label { font-size: 0.65rem; margin-top: 8px; color: var(--text-secondary); font-weight: 500;}
-
-.matrix-table { margin: 20px auto; border-collapse: separate; border-spacing: 0; background: var(--secondary-bg); backdrop-filter: blur(10px); border-radius: var(--radius-md); border: 1px solid var(--card-border); overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.04);}
-.matrix-table th, .matrix-table td { padding: 12px 16px; text-align: center; vertical-align: middle; font-size: 15px; border-bottom: 1px solid var(--card-border); border-right: 1px solid var(--card-border);}
-.matrix-table tr:last-child td { border-bottom: none; }
-.matrix-table th:last-child, .matrix-table td:last-child { border-right: none; }
-.matrix-table th { background-color: rgba(0,0,0,0.03); font-weight: 600; color: var(--text-secondary);}
-.matrix-table tr:first-child th { background: var(--primary-gradient); color: white; font-weight: 600;}
+.highlight-text { background-color: rgba(0, 113, 227, 0.1); padding: 12px 16px; border-radius: var(--radius-md); margin-top: 10px; font-weight: 500; color: var(--primary); }
 
 /* =========================================
-   ЕКРАН АВТЕНТИФІКАЦІЇ
+   СТИЛІ ДЛЯ ВИБОРУ РЕЖИМІВ ЛАБ 4 (ДІФФІ-ХЕЛЛМАН)
 ========================================= */
-.login-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 65vh;
+.dh-mode-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
 }
-.login-card {
+.dh-mode-card {
+    background: var(--secondary-bg);
+    backdrop-filter: blur(12px);
+    border: 2px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+.dh-mode-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+.dh-mode-card.active {
+    border-color: var(--primary);
     background: var(--card-bg);
-    backdrop-filter: blur(20px);
-    padding: 48px;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--card-border);
-    box-shadow: var(--shadow-glass);
-    width: 100%;
-    max-width: 440px;
+    box-shadow: 0 8px 20px rgba(0, 113, 227, 0.15);
+}
+.dh-mode-icon { font-size: 1.5rem; margin-bottom: 10px; }
+.dh-mode-card h3 { font-size: 1.1rem; margin-bottom: 6px; }
+.dh-mode-card p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px; }
+.dh-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.dh-badge.safe { background: rgba(52, 199, 89, 0.15); color: var(--success); }
+.dh-badge.danger { background: rgba(255, 59, 48, 0.15); color: var(--danger); }
+
+.mitm-status-banner {
+    background: rgba(255, 59, 48, 0.1);
+    border: 1px solid rgba(255, 59, 48, 0.3);
+    color: var(--danger);
+    padding: 12px 18px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    margin-bottom: 20px;
     text-align: center;
 }
-.login-card .form-group {
-    text-align: left;
-    margin-bottom: 20px;
-}
 
 /* =========================================
-   ПАНЕЛЬ СЕСІЇ (СКЛЯНА ПЛАШКА)
+   АВТОРИЗАЦІЯ ТА СЕСІЯ
 ========================================= */
+.login-wrapper { display: flex; justify-content: center; align-items: center; min-height: 65vh; }
+.login-card {
+    background: var(--card-bg); backdrop-filter: blur(20px);
+    padding: 48px; border-radius: var(--radius-lg); border: 1px solid var(--card-border);
+    box-shadow: var(--shadow-glass); width: 100%; max-width: 440px; text-align: center;
+}
+.login-card .form-group { text-align: left; margin-bottom: 20px; }
+
 .session-dashboard {
-    background: var(--secondary-bg);
-    backdrop-filter: blur(14px);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-md);
-    padding: 20px 24px;
-    margin-top: 30px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.04);
-    text-align: left;
-    animation: fadeInSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    background: var(--secondary-bg); backdrop-filter: blur(14px);
+    border: 1px solid var(--card-border); border-radius: var(--radius-md);
+    padding: 20px 24px; margin-top: 30px; box-shadow: 0 8px 24px rgba(0,0,0,0.04); text-align: left;
 }
-
-@keyframes fadeInSlide {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.session-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 14px;
-}
-.status-indicator {
-    width: 10px;
-    height: 10px;
-    background-color: var(--success);
-    border-radius: 50%;
-    box-shadow: 0 0 10px rgba(52, 199, 89, 0.6);
-}
-.session-header h3 { margin: 0; font-size: 1.05rem; font-weight: 600; }
-.token-box {
-    display: flex;
-    align-items: center;
-    background: var(--card-bg);
-    padding: 12px 16px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--card-border);
-    gap: 12px;
-}
-.token-label {
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: var(--primary);
-}
-#jwt-display {
-    flex: 1;
-    font-family: "SF Mono", "Consolas", monospace;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.btn-copy {
-    background: none; border: none; padding: 6px; font-size: 1.1rem;
-    cursor: pointer; box-shadow: none; color: inherit; transition: transform 0.2s;
-}
-.btn-copy:hover { transform: scale(1.15); opacity: 1; box-shadow: none; background: none;}
+.session-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.status-indicator { width: 10px; height: 10px; background-color: var(--success); border-radius: 50%; box-shadow: 0 0 10px rgba(52, 199, 89, 0.6); }
+.token-box { display: flex; align-items: center; background: var(--card-bg); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--card-border); gap: 12px; }
+.token-label { font-weight: 700; font-size: 0.85rem; color: var(--primary); }
+#jwt-display { flex: 1; font-family: "SF Mono", "Consolas", monospace; font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.btn-copy { background: none; border: none; padding: 6px; font-size: 1.1rem; cursor: pointer; color: inherit; }

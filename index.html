@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Lab — Лабораторні 1-4</title>
+    <title>Crypto Lab — Full-Stack Криптографічний Інструментарій</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -230,7 +230,7 @@
                         <input type="text" id="sdes-key" value="0011011101" maxlength="10">
                     </div>
                     <div class="form-group">
-                        <label for="sdes-бітний">8-бітний шифротекст:</label>
+                        <label for="sdes-cipher">8-бітний шифротекст:</label>
                         <input type="text" id="sdes-cipher" value="00100001" maxlength="8">
                     </div>
                 </div>
@@ -243,37 +243,78 @@
                 </div>
             </section>
 
-            <!-- Протокол Діффі-Хеллмана (Лабораторна №4) -->
+            <!-- Протокол Діффі-Хеллмана та атака MITM (Лабораторна №4 у стилі твоїх макетів) -->
             <section id="diffie-controls" class="cipher-section hidden">
-                <div class="controls-row">
-                    <div class="form-group">
-                        <label for="dh-p">Просте число (p):</label>
-                        <input type="number" id="dh-p" value="331">
+                
+                <!-- Вибір режимів (як на макеті) -->
+                <div class="dh-mode-selector">
+                    <div class="dh-mode-card active" id="mode-dh-btn" onclick="switchDHMode('dh')">
+                        <div class="dh-mode-icon">🔒</div>
+                        <h3>Звичайний обмін</h3>
+                        <p>Два учасники формують спільний секретний ключ.</p>
+                        <span class="dh-badge safe">Без атаки</span>
                     </div>
-                    <div class="form-group">
-                        <label for="dh-g">Генератор (g):</label>
-                        <input type="number" id="dh-g" value="204">
-                    </div>
-                </div>
-                <div class="controls-row">
-                    <div class="form-group">
-                        <label for="dh-a">Секрет Аліси (a):</label>
-                        <input type="number" id="dh-a" value="46">
-                    </div>
-                    <div class="form-group">
-                        <label for="dh-b">Секрет Боба (b):</label>
-                        <input type="number" id="dh-b" value="56">
+                    <div class="dh-mode-card" id="mode-mitm-btn" onclick="switchDHMode('mitm')">
+                        <div class="dh-mode-icon">⚠️</div>
+                        <h3>Атака MITM</h3>
+                        <p>Третій учасник (Mallory) перехоплює та підміняє відкриті ключі.</p>
+                        <span class="dh-badge danger">З атакою</span>
                     </div>
                 </div>
 
-                <div class="buttons">
-                    <button onclick="runDiffieHellman()">🚀 Запустити протокол DH</button>
-                    <button onclick="runMITMAttack()" class="btn-danger">🕵️‍♂️ Симуляція MITM атаки</button>
+                <!-- Режим 1: Звичайний обмін DH -->
+                <div id="sub-dh-section" class="dh-sub-section">
+                    <h3 style="margin-bottom: 16px;">Крок 1. Загальні параметри</h3>
+                    <div class="controls-row">
+                        <div class="form-group">
+                            <label for="dh-p">Просте число p:</label>
+                            <input type="number" id="dh-p" value="23">
+                        </div>
+                        <div class="form-group">
+                            <label for="dh-g">Основа g:</label>
+                            <input type="number" id="dh-g" value="5">
+                        </div>
+                    </div>
+
+                    <h3 style="margin-bottom: 16px;">Крок 2. Приватні ключі</h3>
+                    <div class="controls-row">
+                        <div class="form-group">
+                            <label for="dh-a">Приватний ключ Аліси (a):</label>
+                            <input type="number" id="dh-a" value="6">
+                        </div>
+                        <div class="form-group">
+                            <label for="dh-b">Приватний ключ Боба (b):</label>
+                            <input type="number" id="dh-b" value="15">
+                        </div>
+                    </div>
+
+                    <div class="buttons" style="margin-top: 15px;">
+                        <button onclick="runDiffieHellmanVisual()">⚡ Згенерувати ключі та виконати обмін</button>
+                    </div>
+
+                    <div id="dh-visual-output" class="analysis-box hidden" style="margin-top: 20px;">
+                        <!-- Динамічні результати звичайного обміну -->
+                    </div>
                 </div>
 
-                <div id="dh-output" class="analysis-box" style="margin-top: 20px;">
-                    <p>Натисніть кнопку вище, щоб виконати розрахунки протоколу Діффі-Хеллмана.</p>
+                <!-- Режим 2: Атака MITM -->
+                <div id="sub-mitm-section" class="dh-sub-section hidden">
+                    <div class="mitm-status-banner">Атаку активовано: посередник контролює канал зв'язку</div>
+                    
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="mitm-message">Повідомлення від Аліси до Боба:</label>
+                        <input type="text" id="mitm-message" value="Привіт, Боб!">
+                    </div>
+
+                    <div class="buttons" style="margin-top: 15px;">
+                        <button onclick="runMITMVisual()" class="btn-danger">🕵️‍♂️ Запустити перехоплення та атаку MITM</button>
+                    </div>
+
+                    <div id="mitm-visual-output" class="analysis-box hidden" style="margin-top: 20px;">
+                        <!-- Динамічні результати MITM -->
+                    </div>
                 </div>
+
             </section>
 
         </div>

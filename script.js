@@ -73,6 +73,26 @@ function showLogin() {
     document.getElementById('login-screen').classList.remove('hidden');
 }
 
+// Перемикання режимів Лаб 4 (Звичайний / MITM)
+function switchDHMode(mode) {
+    const dhBtn = document.getElementById('mode-dh-btn');
+    const mitmBtn = document.getElementById('mode-mitm-btn');
+    const dhSec = document.getElementById('sub-dh-section');
+    const mitmSec = document.getElementById('sub-mitm-section');
+
+    if (mode === 'dh') {
+        dhBtn.classList.add('active');
+        mitmBtn.classList.remove('active');
+        dhSec.classList.remove('hidden');
+        mitmSec.classList.add('hidden');
+    } else {
+        mitmBtn.classList.add('active');
+        dhBtn.classList.remove('active');
+        mitmSec.classList.remove('hidden');
+        dhSec.classList.add('hidden');
+    }
+}
+
 async function updateHash() {
     const text = document.getElementById('main-text').value;
     const hashSpan = document.getElementById('text-hash');
@@ -445,7 +465,7 @@ function modPow(base, exp, mod) {
     return Number(res);
 }
 
-function runDiffieHellman() {
+function runDiffieHellmanVisual() {
     const p = parseInt(document.getElementById('dh-p').value);
     const g = parseInt(document.getElementById('dh-g').value);
     const a = parseInt(document.getElementById('dh-a').value);
@@ -453,51 +473,52 @@ function runDiffieHellman() {
 
     const A = modPow(g, a, p);
     const B = modPow(g, b, p);
+    const keyA = modPow(B, a, p);
+    const keyB = modPow(A, b, p);
 
-    const keyAlice = modPow(B, a, p);
-    const keyBob = modPow(A, b, p);
-
-    const outputBox = document.getElementById('dh-output');
-    outputBox.innerHTML = `
-        <h3 style="color: var(--success);">✅ Протокол Діффі-Хеллмана успішно виконано:</h3>
-        <p>1. Параметри протоколу: <b>p = ${p}, g = ${g}</b></p>
-        <p>2. Секретні числа: <b>a = ${a}</b> (Аліса), <b>b = ${b}</b> (Боб)</p>
-        <p>3. Відкритий ключ Аліси (A = g^a mod p): <b style="color: var(--primary);">${A}</b></p>
-        <p>4. Відкритий ключ Боба (B = g^b mod p): <b style="color: var(--primary);">${B}</b></p>
+    const out = document.getElementById('dh-visual-output');
+    out.innerHTML = `
+        <h3 style="color: var(--success); margin-bottom: 12px;">✅ Звичайний обмін завершено</h3>
+        <p>Відкритий ключ Аліси (A = g<sup>a</sup> mod p): <strong class="highlight-text">${A}</strong></p>
+        <p>Відкритий ключ Боба (B = g<sup>b</sup> mod p): <strong class="highlight-text">${B}</strong></p>
         <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 12px 0;">
-        <p>🔑 Спільний секретний ключ у Аліси (K = B^a mod p): <b style="color: var(--success);">${keyAlice}</b></p>
-        <p>🔑 Спільний секретний ключ у Боба (K = A^b mod p): <b style="color: var(--success);">${keyBob}</b></p>
+        <p>Спільний секрет у Аліси (K<sub>A</sub>): <strong class="highlight-text">${keyA}</strong></p>
+        <p>Спільний секрет у Боба (K<sub>B</sub>): <strong class="highlight-text">${keyB}</strong></p>
+        <p style="margin-top: 12px; color: var(--success); font-weight: 600;">Спільні секрети збігаються: K = ${keyA}</p>
     `;
+    out.classList.remove('hidden');
 }
 
-function runMITMAttack() {
+function runMITMVisual() {
     const p = parseInt(document.getElementById('dh-p').value);
     const g = parseInt(document.getElementById('dh-g').value);
     const a = parseInt(document.getElementById('dh-a').value);
     const b = parseInt(document.getElementById('dh-b').value);
-    
-    const c1 = 15;
-    const c2 = 22;
+    const msg = document.getElementById('mitm-message').value;
+
+    const c1 = 4; 
+    const c2 = 9; 
 
     const A = modPow(g, a, p);
     const B = modPow(g, b, p);
-
     const Atrap = modPow(g, c1, p);
     const Btrap = modPow(g, c2, p);
 
-    const keyAttackerAlice = modPow(A, c1, p);
-    const keyAttackerBob = modPow(B, c2, p);
+    const keyMalloryAlice = modPow(A, c1, p);
+    const keyMalloryBob = modPow(B, c2, p);
 
-    const outputBox = document.getElementById('dh-output');
-    outputBox.innerHTML = `
-        <h3 style="color: var(--danger);">⚠️ Симуляція атаки «Людина посередині» (MITM):</h3>
-        <p>1. Аліса надсилає відкритий ключ <b>A = ${A}</b>, але Зловмисник перехоплює його і підсилає Бобу власний ключ <b style="color: var(--danger);">${Atrap}</b>.</p>
-        <p>2. Боб надсилає відкритий ключ <b>B = ${B}</b>, але Зловмисник перехоплює його і підсилає Алісі свій ключ <b style="color: var(--danger);">${Btrap}</b>.</p>
+    const out = document.getElementById('mitm-visual-output');
+    out.innerHTML = `
+        <h3 style="color: var(--danger); margin-bottom: 12px;">⚠️ Атака Man-in-the-Middle успішна</h3>
+        <p>1. Аліса надсилає ключ <b>A = ${A}</b>, Mallory перехоплює і підсилає свій ключ <strong style="color: var(--danger);">${Atrap}</strong> Бобу.</p>
+        <p>2. Боб надсилає ключ <b>B = ${B}</b>, Mallory перехоплює і підсилає свій ключ <strong style="color: var(--danger);">${Btrap}</strong> Алісі.</p>
         <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 12px 0;">
-        <p>🔓 Ключ між Алісою та Зловмисником: <b style="color: var(--danger);">${keyAttackerAlice}</b></p>
-        <p>🔓 Ключ між Бобом та Зловмисником: <b style="color: var(--danger);">${keyAttackerBob}</b></p>
-        <p style="margin-top: 12px; color: var(--warning);"><b>Висновок:</b> Аліса та Боб не підозрюють про підміну, але тепер зловмисник розшифровує всі повідомлення між ними за допомогою двох окремих секретів!</p>
+        <p>🔓 Спільний ключ (Аліса ↔ Mallory): <strong style="color: var(--danger);">${keyMalloryAlice}</strong></p>
+        <p>🔓 Спільний ключ (Mallory ↔ Боб): <strong style="color: var(--danger);">${keyMalloryBob}</strong></p>
+        <p style="margin-top: 10px;"><b>Перехоплене повідомлення:</b> "${escapeHtml(msg)}" успішно розшифровано посередником Mallory!</p>
+        <p style="margin-top: 8px; color: var(--warning); font-weight: 600;">Аліса та Боб не мають спільного секрету між собою!</p>
     `;
+    out.classList.remove('hidden');
 }
 
 // ==========================================
